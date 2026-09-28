@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} — {{ app_name }}{% endblock %}
+
+{% block content %}
+<section class="reader" data-pdf-url="{{ pdf_url or '' }}" data-title="{{ title }}">
+  <div class="container">
+    <header class="reader__header">
+      <div>
+        <p class="eyebrow"><span class="dot" aria-hidden="true"></span> Your comic is ready</p>
+        <h1 class="reader__title">{{ title }}</h1>
+        <p class="reader__meta">
+          {{ comic.character_name }} · {{ comic.setting }} · {{ comic.tone }} · {{ comic.art_style }} · {{ layout|length }} panels
+        </p>
+      </div>
+      <div class="reader__actions">
+        <a class="btn btn--ghost" href="/#create">Back to editor</a>
+        {% if pdf_url %}
+        <a class="btn btn--primary" id="downloadBtn" href="/download?pdf_url={{ pdf_url }}&title={{ title|urlencode }}">Download PDF</a>
+        {% endif %}
+      </div>
+    </header>
+
+    {% if warnings %}
+    <div class="alert alert--warning" role="status">
+      <strong>Heads up.</strong>
+      <ul class="alert__list">
+        {% for warning in warnings %}<li>{{ warning }}</li>{% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+    <div class="reader__toolbar" role="toolbar" aria-label="Comic view controls">
+      <div class="view-switch">
+        <button type="button" class="view-switch__btn is-active" data-view="grid" aria-pressed="true">Grid view</button>
+        <button type="button" class="view-switch__btn" data-view="single" aria-pressed="false">Full preview</button>
+      </div>
+      <div class="pager" id="pager" hidden>
+        <button type="button" class="btn btn--ghost btn--sm" id="prevPanel">Previous</button>
+        <span class="pager__status" id="pagerStatus" aria-live="polite">Panel 1 / {{ layout|length }}</span>
+        <button type="button" class="btn btn--ghost btn--sm" id="nextPanel">Next</button>
+      </div>
+    </div>
+
+    <div class="comic-grid" id="comicGrid">
+      {% for panel in layout %}
+      <article class="panel" id="panel-{{ panel.panel_number }}" data-index="{{ loop.index0 }}">
+        <header class="panel__header">
+          <span class="panel__number">Panel {{ '%02d'|format(panel.panel_number) }}</span>
+          <h2 class="panel__title">{{ panel.title }}</h2>
+        </header>
+
+        <figure class="panel__figure">
+          {% if panel.image_url %}
+          <img class="panel__image" src="{{ panel.image_url }}" alt="Illustration for panel {{ panel.panel_number }}: {{ panel.title }}" loading="lazy" decoding="async" />
+          <button type="button" class="panel__zoom" data-zoom-src="{{ panel.image_url }}" data-zoom-alt="{{ panel.title }}" aria-label="Zoom panel {{ panel.panel_number }}">Zoom</button>
+          {% else %}
+          <div class="panel__image panel__image--missing" role="img" aria-label="Illustration unavailable">
+            <span>Illustration unavailable</span>
+            {% if panel.image_error %}<small>{{ panel.image_error }}</small>{% endif %}
+          </div>
+          {% endif %}
+          {% if panel.scene_description %}
+          <figcaption class="panel__scene">{{ panel.scene_description }}</figcaption>
+          {% endif %}
+        </figure>
+
+        {% if panel.caption %}
+        <p class="caption-box">{{ panel.caption }}</p>
+        {% endif %}
+
+        {% if panel.narration %}
+        <p class="panel__narration">{{ panel.narration }}</p>
+        {% endif %}
+
+        {% if panel.dialogue %}
+        <ul class="bubbles">
+          {% for line in panel.dialogue %}
+          <li class="bubble">{{ line }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+
+        {% if panel.image_prompt %}
+        <details class="prompt-reveal">
+          <summary>View image prompt</summary>
+          <p>{{ panel.image_prompt }}</p>
+        </details>
+        {% endif %}
+      </article>
+      {% endfor %}
+    </div>
+
+    <div class="reader__footer">
+      <a class="btn btn--ghost" href="/#create">Create another comic</a>
+      {% if pdf_url %}
+      <a class="btn btn--primary" href="/download?pdf_url={{ pdf_url }}&title={{ title|urlencode }}">Download your comic as PDF</a>
+      {% else %}
+      <p class="reader__note">The PDF export is unavailable for this comic. You can regenerate it from the editor.</p>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<div class="lightbox" id="lightbox" hidden>
+  <button type="button" class="lightbox__close" id="lightboxClose" aria-label="Close zoom">&times;</button>
+  <img class="lightbox__img" id="lightboxImg" src="" alt="" />
+</div>
+{% endblock %}

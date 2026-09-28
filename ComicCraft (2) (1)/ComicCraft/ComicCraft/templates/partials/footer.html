@@ -1,0 +1,24 @@
+<footer class="footer" id="about">
+  <div class="container footer__inner">
+    <div class="footer__brand">
+      <p class="footer__logo">{{ app_name }}</p>
+      <p class="footer__tagline">Create stories. Build worlds. Bring imagination to life.</p>
+    </div>
+    <nav class="footer__nav" aria-label="Footer">
+      <div class="footer__col">
+        <h3 class="footer__heading">Product</h3>
+        <a href="/#create">Create a comic</a>
+        <a href="/#how-it-works">How it works</a>
+        <a href="/#gallery">Gallery</a>
+      </div>
+      <div class="footer__col">
+        <h3 class="footer__heading">Developers</h3>
+        <a href="/docs">API documentation</a>
+        <a href="/health">Health check</a>
+      </div>
+    </nav>
+  </div>
+  <div class="container footer__legal">
+    <p>&copy; {{ current_year }} {{ app_name }}. Built with FastAPI and Generative AI.</p>
+  </div>
+</footer>

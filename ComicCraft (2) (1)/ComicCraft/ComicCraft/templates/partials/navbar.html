@@ -1,0 +1,37 @@
+<header class="navbar" id="navbar">
+  <div class="container navbar__inner">
+    <a class="brand" href="/" aria-label="{{ app_name }} home">
+      <span class="brand__mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" width="26" height="26" focusable="false">
+          <rect x="2" y="4" width="28" height="20" rx="5" fill="url(#brandGradient)"></rect>
+          <path d="M9 26l5-5h9" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round"></path>
+          <circle cx="12" cy="13" r="2.2" fill="#fff"></circle>
+          <circle cx="20" cy="13" r="2.2" fill="#fff"></circle>
+          <defs>
+            <linearGradient id="brandGradient" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#7C5CFF"></stop>
+              <stop offset="100%" stop-color="#4CC9F0"></stop>
+            </linearGradient>
+          </defs>
+        </svg>
+      </span>
+      <span class="brand__name">{{ app_name }}</span>
+    </a>
+
+    <button class="nav-toggle" id="navToggle" type="button" aria-expanded="false" aria-controls="navMenu" aria-label="Open navigation menu">
+      <span class="nav-toggle__bar"></span>
+      <span class="nav-toggle__bar"></span>
+      <span class="nav-toggle__bar"></span>
+    </button>
+
+    <nav class="nav" id="navMenu" aria-label="Primary">
+      <ul class="nav__list">
+        <li><a class="nav__link" href="/#create">Create</a></li>
+        <li><a class="nav__link" href="/#how-it-works">How It Works</a></li>
+        <li><a class="nav__link" href="/#gallery">Gallery</a></li>
+        <li><a class="nav__link" href="/#about">About</a></li>
+      </ul>
+      <a class="btn btn--primary btn--nav" href="/#create">Create Comic</a>
+    </nav>
+  </div>
+</header>

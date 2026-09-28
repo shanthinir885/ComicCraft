@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}{{ status_code }} — {{ app_name }}{% endblock %}
+
+{% block content %}
+<section class="section section--center">
+  <div class="container narrow">
+    <p class="eyebrow"><span class="dot" aria-hidden="true"></span> Error {{ status_code }}</p>
+    <h1 class="section__title">That page took a wrong turn.</h1>
+    <p class="section__lead">{{ message }}</p>
+    <div class="hero__actions hero__actions--center">
+      <a class="btn btn--primary btn--lg" href="/">Back to home</a>
+      <a class="btn btn--ghost btn--lg" href="/#create">Create a comic</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

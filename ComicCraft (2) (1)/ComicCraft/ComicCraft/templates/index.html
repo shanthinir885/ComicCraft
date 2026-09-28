@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+
+{% block title %}{{ app_name }} — Turn Your Ideas Into AI-Powered Comics{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="hero__glow" aria-hidden="true"></div>
+  <div class="container hero__inner">
+    <div class="hero__copy">
+      <p class="eyebrow"><span class="dot" aria-hidden="true"></span> Powered by Gemini + Diffusion models</p>
+      <h1 class="hero__title">Turn Your Ideas Into <span class="text-gradient">AI-Powered Comics</span></h1>
+      <p class="hero__subtitle">
+        Create original stories, characters, dialogue, and comic illustrations with the power of Generative AI.
+      </p>
+      <div class="hero__actions">
+        <a class="btn btn--primary btn--lg" href="#create">Create Your Comic</a>
+        <a class="btn btn--ghost btn--lg" href="#how-it-works">See How It Works</a>
+      </div>
+      <dl class="hero__stats">
+        <div><dt>{{ panel_count }}</dt><dd>AI panels per comic</dd></div>
+        <div><dt>PDF</dt><dd>Print-ready export</dd></div>
+        <div><dt>8</dt><dd>Art styles</dd></div>
+      </dl>
+    </div>
+
+    <div class="hero__visual" aria-hidden="true">
+      <div class="comic-stage">
+        <div class="comic-tile comic-tile--1"><span class="comic-tile__label">Panel 01</span><span class="comic-tile__art art--forest"></span></div>
+        <div class="comic-tile comic-tile--2"><span class="comic-tile__label">Panel 02</span><span class="comic-tile__art art--portal"></span></div>
+        <div class="comic-tile comic-tile--3"><span class="comic-tile__label">Panel 03</span><span class="comic-tile__art art--city"></span></div>
+        <div class="comic-core">
+          <span class="comic-core__ring"></span>
+          <span class="comic-core__ring comic-core__ring--2"></span>
+          <span class="comic-core__label">AI</span>
+        </div>
+        <span class="speech-bubble">POW!</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section--tight" id="how-it-works">
+  <div class="container">
+    <header class="section__header">
+      <h2 class="section__title">How it works</h2>
+      <p class="section__lead">Five steps from a one-line idea to a finished, downloadable comic.</p>
+    </header>
+    <ol class="steps">
+      <li class="step-card"><span class="step-card__num">01</span><h3>Describe your idea</h3><p>Write a prompt, name your hero and pick a setting.</p></li>
+      <li class="step-card"><span class="step-card__num">02</span><h3>Outline the panels</h3><p>A fast model plans a {{ panel_count }}-panel structure with titles and scenes.</p></li>
+      <li class="step-card"><span class="step-card__num">03</span><h3>Write the script</h3><p>A creative model adds narration, captions and character dialogue.</p></li>
+      <li class="step-card"><span class="step-card__num">04</span><h3>Illustrate every panel</h3><p>A diffusion model draws each scene in your chosen art style.</p></li>
+      <li class="step-card"><span class="step-card__num">05</span><h3>Read and export</h3><p>Flip through panels in the reader, then download a print-ready PDF.</p></li>
+    </ol>
+  </div>
+</section>
+
+<section class="section" id="create">
+  <div class="container">
+    <header class="section__header">
+      <h2 class="section__title">Create your comic</h2>
+      <p class="section__lead">Give the studio a spark. It handles the story, the script and the art.</p>
+    </header>
+
+    {% if not gemini_configured %}
+    <div class="alert alert--warning" role="status">
+      <strong>Configuration needed.</strong> Add <code>GEMINI_API_KEY</code> to your <code>.env</code> file and restart the server to enable generation.
+    </div>
+    {% endif %}
+
+    {% if error %}
+    <div class="alert alert--error" role="alert" id="serverError">
+      <strong>We could not finish that comic.</strong> {{ error }}
+    </div>
+    {% endif %}
+
+    <div class="workspace">
+      <form class="creator" id="comicForm" method="post" action="/generate" novalidate>
+        <div class="field">
+          <label class="field__label" for="story_prompt">Story prompt <span class="req" aria-hidden="true">*</span></label>
+          <textarea
+            class="field__control field__control--area"
+            id="story_prompt"
+            name="story_prompt"
+            rows="5"
+            maxlength="{{ max_prompt_length }}"
+            placeholder="A brave fox discovers a mysterious portal inside an enchanted forest..."
+            aria-describedby="promptCounter promptError"
+            required></textarea>
+          <div class="field__meta">
+            <p class="field__error" id="promptError" role="alert"></p>
+            <p class="counter" id="promptCounter">0 / {{ max_prompt_length }}</p>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="character_name">Main character <span class="req" aria-hidden="true">*</span></label>
+          <input
+            class="field__control"
+            id="character_name"
+            name="character_name"
+            type="text"
+            maxlength="60"
+            placeholder="Enter your hero's name"
+            autocomplete="off"
+            aria-describedby="characterError"
+            required />
+          <p class="field__error" id="characterError" role="alert"></p>
+        </div>
+
+        <fieldset class="field">
+          <legend class="field__label">Setting <span class="req" aria-hidden="true">*</span></legend>
+          <div class="chips" role="radiogroup" aria-label="Setting" data-group="setting">
+            {% for option in settings_options %}
+            <button type="button" class="chip" role="radio" aria-checked="false" data-value="{{ option }}">{{ option }}</button>
+            {% endfor %}
+            <button type="button" class="chip chip--custom" role="radio" aria-checked="false" data-value="__custom__" id="customSettingChip">Custom</button>
+          </div>
+          <label class="sr-only" for="custom_setting">Custom setting</label>
+          <input class="field__control field__control--inline" id="custom_setting" type="text" maxlength="60" placeholder="Describe your own world" hidden />
+          <input type="hidden" name="setting" id="setting" required />
+          <p class="field__error" id="settingError" role="alert"></p>
+        </fieldset>
+
+        <fieldset class="field">
+          <legend class="field__label">Story tone <span class="req" aria-hidden="true">*</span></legend>
+          <div class="chips" role="radiogroup" aria-label="Story tone" data-group="tone">
+            {% for option in tones %}
+            <button type="button" class="chip" role="radio" aria-checked="false" data-value="{{ option }}">{{ option }}</button>
+            {% endfor %}
+          </div>
+          <input type="hidden" name="tone" id="tone" required />
+          <p class="field__error" id="toneError" role="alert"></p>
+        </fieldset>
+
+        <fieldset class="field">
+          <legend class="field__label">Art style <span class="req" aria-hidden="true">*</span></legend>
+          <div class="style-grid" role="radiogroup" aria-label="Art style" data-group="art_style">
+            {% for option in art_styles %}
+            <button type="button" class="style-card" role="radio" aria-checked="false" data-value="{{ option }}">
+              <span class="style-card__swatch swatch--{{ loop.index }}" aria-hidden="true"></span>
+              <span class="style-card__name">{{ option }}</span>
+            </button>
+            {% endfor %}
+          </div>
+          <input type="hidden" name="art_style" id="art_style" required />
+          <p class="field__error" id="styleError" role="alert"></p>
+        </fieldset>
+
+        <button class="btn btn--primary btn--lg btn--block" type="submit" id="generateBtn">
+          <span class="btn__label">Generate My Comic</span>
+        </button>
+        <p class="creator__note">Generation calls live AI services and may take a few minutes.</p>
+      </form>
+
+      <aside class="preview-pane" aria-label="Comic preview">
+        <div class="empty-state" id="emptyState">
+          <div class="empty-state__art" aria-hidden="true">
+            <span></span><span></span><span></span><span></span>
+          </div>
+          <h3 class="empty-state__title">Your canvas is waiting for an idea.</h3>
+          <p class="empty-state__text">Enter a story prompt and let {{ app_name }} bring it to life.</p>
+          <ul class="empty-state__list">
+            <li>Structured {{ panel_count }}-panel storyline</li>
+            <li>Narration, captions and dialogue</li>
+            <li>Original illustration for every panel</li>
+            <li>One-click PDF export</li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<section class="section section--muted" id="gallery">
+  <div class="container">
+    <header class="section__header">
+      <h2 class="section__title">Built for every kind of story</h2>
+      <p class="section__lead">Pick a tone and an art style, and the studio adapts the script and the artwork.</p>
+    </header>
+    <div class="gallery-grid">
+      <article class="gallery-card"><span class="gallery-card__art art--forest" aria-hidden="true"></span><h3>Enchanted Forest</h3><p>Adventure · Fantasy art</p></article>
+      <article class="gallery-card"><span class="gallery-card__art art--space" aria-hidden="true"></span><h3>Deep Space</h3><p>Epic · Cinematic</p></article>
+      <article class="gallery-card"><span class="gallery-card__art art--city" aria-hidden="true"></span><h3>Futuristic City</h3><p>Mysterious · Anime</p></article>
+      <article class="gallery-card"><span class="gallery-card__art art--school" aria-hidden="true"></span><h3>School Days</h3><p>Funny · Cartoon</p></article>
+    </div>
+  </div>
+</section>
+{% endblock %}

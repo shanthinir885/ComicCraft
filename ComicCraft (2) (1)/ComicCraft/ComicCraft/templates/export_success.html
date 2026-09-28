@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Comic exported — {{ app_name }}{% endblock %}
+
+{% block content %}
+<section class="success">
+  <div class="container success__inner">
+    <div class="success__badge" aria-hidden="true">
+      <svg viewBox="0 0 64 64" width="64" height="64" focusable="false">
+        <circle class="success__circle" cx="32" cy="32" r="28" fill="none" stroke="#4CC9F0" stroke-width="4"></circle>
+        <path class="success__check" d="M20 33l9 9 16-18" fill="none" stroke="#7C5CFF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"></path>
+      </svg>
+    </div>
+    <h1 class="success__title">Your Comic Is Ready!</h1>
+    <p class="success__text">Your AI-generated comic has been successfully created.</p>
+    <p class="success__subject">{{ title }}</p>
+
+    <div class="success__actions">
+      {% if pdf_url %}
+      <a class="btn btn--primary btn--lg" href="/download?pdf_url={{ pdf_url }}&title={{ title|urlencode }}">Download PDF</a>
+      <a class="btn btn--ghost btn--lg" href="{{ pdf_url }}" target="_blank" rel="noopener">View Comic</a>
+      {% endif %}
+      <a class="btn btn--ghost btn--lg" href="/#create">Create Another Comic</a>
+    </div>
+
+    <div class="confetti" aria-hidden="true">
+      <span></span><span></span><span></span><span></span><span></span><span></span>
+    </div>
+  </div>
+</section>
+{% endblock %}
